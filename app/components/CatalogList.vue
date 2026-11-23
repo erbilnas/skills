@@ -9,6 +9,8 @@ export interface CatalogRow {
   alwaysApply?: boolean | null;
 }
 
+type LayoutMode = "list" | "grid";
+
 const props = defineProps<{
   basePath: string;
   items: CatalogRow[];
@@ -19,6 +21,10 @@ const props = defineProps<{
 
 const query = ref("");
 const category = ref("all");
+const layout = useCookie<LayoutMode>("catalog-layout", {
+  default: () => "list",
+  sameSite: "lax",
+});
 
 const categories = computed(() => {
   return [
@@ -55,6 +61,10 @@ function metaLine(item: CatalogRow) {
   ].filter(Boolean);
   return bits.join(" · ");
 }
+
+function setLayout(mode: LayoutMode) {
+  layout.value = mode;
+}
 </script>
 
 <template>
@@ -81,6 +91,65 @@ function metaLine(item: CatalogRow) {
           </option>
         </select>
       </label>
+      <div class="flex flex-col gap-1.5">
+        <span class="text-xs text-[var(--muted)]">Layout</span>
+        <div
+          class="flex items-center gap-1"
+          role="group"
+          aria-label="Catalog layout"
+        >
+          <button
+            type="button"
+            class="rounded-md border px-2.5 py-2.5 transition-colors"
+            :class="
+              layout === 'list'
+                ? 'border-[var(--ink)] text-[var(--ink)]'
+                : 'border-[var(--line)] text-[var(--muted)] hover:text-[var(--ink)]'
+            "
+            :aria-pressed="layout === 'list'"
+            aria-label="List layout"
+            @click="setLayout('list')"
+          >
+            <svg
+              class="size-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+              aria-hidden="true"
+            >
+              <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="rounded-md border px-2.5 py-2.5 transition-colors"
+            :class="
+              layout === 'grid'
+                ? 'border-[var(--ink)] text-[var(--ink)]'
+                : 'border-[var(--line)] text-[var(--muted)] hover:text-[var(--ink)]'
+            "
+            :aria-pressed="layout === 'grid'"
+            aria-label="Grid layout"
+            @click="setLayout('grid')"
+          >
+            <svg
+              class="size-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.75"
+              stroke-linecap="round"
+              aria-hidden="true"
+            >
+              <path
+                d="M4 4h7v7H4V4Zm9 0h7v7h-7V4ZM4 13h7v7H4v-7Zm9 0h7v7h-7v-7Z"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
     </div>
 
     <p v-if="pending" class="font-sans-ui text-sm text-[var(--muted)]">
@@ -101,7 +170,7 @@ function metaLine(item: CatalogRow) {
     </p>
 
     <ul
-      v-else
+      v-else-if="layout === 'list'"
       class="divide-y divide-[var(--line)] border-y border-[var(--line)]"
     >
       <li v-for="item in filtered" :key="item.slug">
@@ -127,6 +196,38 @@ function metaLine(item: CatalogRow) {
           </div>
           <span
             class="font-mono-ui shrink-0 text-xs text-[var(--muted)] group-hover:text-[var(--ink)]"
+          >
+            {{ item.slug }}
+          </span>
+        </NuxtLink>
+      </li>
+    </ul>
+
+    <ul
+      v-else
+      class="grid gap-px border border-[var(--line)] bg-[var(--line)] sm:grid-cols-2 lg:grid-cols-3"
+    >
+      <li v-for="item in filtered" :key="item.slug" class="bg-[var(--paper)]">
+        <NuxtLink
+          :to="`${basePath}/${item.slug}`"
+          class="group flex h-full flex-col gap-2 p-5 transition-colors hover:bg-black/[0.03] dark:hover:bg-white/[0.04]"
+        >
+          <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+            <span class="text-lg font-semibold tracking-tight">
+              {{ item.name }}
+            </span>
+            <span
+              v-if="metaLine(item)"
+              class="font-sans-ui text-xs text-[var(--muted)]"
+            >
+              {{ metaLine(item) }}
+            </span>
+          </div>
+          <p class="line-clamp-3 flex-1 text-pretty text-sm text-[var(--muted)]">
+            {{ item.description || "No description." }}
+          </p>
+          <span
+            class="font-mono-ui mt-2 text-xs text-[var(--muted)] group-hover:text-[var(--ink)]"
           >
             {{ item.slug }}
           </span>

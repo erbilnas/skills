@@ -129,7 +129,7 @@ function isActive(match: (path: string) => boolean) {
       <div
         class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3"
       >
-        <p>Skills, MCPs, and rules from my Cursor setup.</p>
+        <p>Skills, MCPs, and rules from my setup.</p>
         <a
           href="https://erbilnas.com"
           class="hover:text-[var(--ink)]"

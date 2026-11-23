@@ -65,46 +65,76 @@ function metaLine(item: CatalogRow) {
 function setLayout(mode: LayoutMode) {
   layout.value = mode;
 }
+
+const isFiltered = computed(
+  () => Boolean(query.value.trim()) || category.value !== "all",
+);
 </script>
 
 <template>
   <div>
-    <div class="font-sans-ui mb-8 flex flex-col gap-3 sm:flex-row sm:items-end">
-      <label class="flex min-w-0 flex-1 flex-col gap-1.5">
-        <span class="text-xs text-[var(--muted)]">Search</span>
+    <div
+      class="font-sans-ui mb-8 flex flex-col gap-3 border-b border-[var(--line)] pb-4 sm:flex-row sm:items-center sm:gap-4"
+    >
+      <label class="relative min-w-0 flex-1">
+        <span class="sr-only">Search</span>
+        <svg
+          class="pointer-events-none absolute left-0 top-1/2 size-4 -translate-y-1/2 text-[var(--muted)]"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.75"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <circle cx="11" cy="11" r="6.5" />
+          <path d="m16 16 4 4" />
+        </svg>
         <input
           v-model="query"
           type="search"
-          placeholder="Name, description, slug"
-          class="w-full rounded-md border border-[var(--line)] bg-transparent px-3 py-2.5 text-[var(--ink)] outline-none focus:border-[var(--ink)]"
+          placeholder="Search by name, description, or slug"
+          class="w-full bg-transparent py-2 pl-7 pr-2 text-[var(--ink)] outline-none placeholder:text-[var(--muted)]"
         />
       </label>
-      <label class="flex w-full flex-col gap-1.5 sm:w-48">
-        <span class="text-xs text-[var(--muted)]">Filter</span>
-        <select
-          v-model="category"
-          class="w-full rounded-md border border-[var(--line)] bg-transparent px-3 py-2.5 text-[var(--ink)] outline-none focus:border-[var(--ink)]"
-        >
-          <option value="all">All</option>
-          <option v-for="item in categories" :key="item" :value="item">
-            {{ item }}
-          </option>
-        </select>
-      </label>
-      <div class="flex flex-col gap-1.5">
-        <span class="text-xs text-[var(--muted)]">Layout</span>
+
+      <div class="flex items-center justify-between gap-3 sm:justify-end">
+        <label v-if="categories.length" class="relative min-w-0">
+          <span class="sr-only">Filter by category</span>
+          <select
+            v-model="category"
+            class="max-w-[12rem] cursor-pointer appearance-none bg-transparent py-2 pr-5 text-sm text-[var(--ink)] outline-none"
+          >
+            <option value="all">All categories</option>
+            <option v-for="item in categories" :key="item" :value="item">
+              {{ item }}
+            </option>
+          </select>
+          <svg
+            class="pointer-events-none absolute right-0 top-1/2 size-3.5 -translate-y-1/2 text-[var(--muted)]"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.75"
+            stroke-linecap="round"
+            aria-hidden="true"
+          >
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </label>
+
         <div
-          class="flex items-center gap-1"
+          class="flex items-center gap-2"
           role="group"
           aria-label="Catalog layout"
         >
           <button
             type="button"
-            class="rounded-md border px-2.5 py-2.5 transition-colors"
+            class="p-1.5 transition-colors"
             :class="
               layout === 'list'
-                ? 'border-[var(--ink)] text-[var(--ink)]'
-                : 'border-[var(--line)] text-[var(--muted)] hover:text-[var(--ink)]'
+                ? 'text-[var(--ink)]'
+                : 'text-[var(--muted)] hover:text-[var(--ink)]'
             "
             :aria-pressed="layout === 'list'"
             aria-label="List layout"
@@ -124,11 +154,11 @@ function setLayout(mode: LayoutMode) {
           </button>
           <button
             type="button"
-            class="rounded-md border px-2.5 py-2.5 transition-colors"
+            class="p-1.5 transition-colors"
             :class="
               layout === 'grid'
-                ? 'border-[var(--ink)] text-[var(--ink)]'
-                : 'border-[var(--line)] text-[var(--muted)] hover:text-[var(--ink)]'
+                ? 'text-[var(--ink)]'
+                : 'text-[var(--muted)] hover:text-[var(--ink)]'
             "
             :aria-pressed="layout === 'grid'"
             aria-label="Grid layout"
@@ -151,6 +181,14 @@ function setLayout(mode: LayoutMode) {
         </div>
       </div>
     </div>
+
+    <p
+      v-if="isFiltered && !pending && !error"
+      class="font-sans-ui mb-4 text-xs text-[var(--muted)]"
+    >
+      {{ filtered.length }}
+      {{ filtered.length === 1 ? "match" : "matches" }}
+    </p>
 
     <p v-if="pending" class="font-sans-ui text-sm text-[var(--muted)]">
       Loading…

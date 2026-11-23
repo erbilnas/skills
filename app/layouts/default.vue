@@ -3,9 +3,21 @@ const route = useRoute();
 const colorMode = useColorMode();
 
 const links = [
-  { to: "/", label: "Skills", match: (path: string) => path === "/" || path.startsWith("/skills") },
-  { to: "/mcps", label: "MCPs", match: (path: string) => path.startsWith("/mcps") },
-  { to: "/rules", label: "Rules", match: (path: string) => path.startsWith("/rules") },
+  {
+    to: "/",
+    label: "Skills",
+    match: (path: string) => path === "/" || path.startsWith("/skills"),
+  },
+  {
+    to: "/mcps",
+    label: "MCPs",
+    match: (path: string) => path.startsWith("/mcps"),
+  },
+  {
+    to: "/rules",
+    label: "Rules",
+    match: (path: string) => path.startsWith("/rules"),
+  },
 ];
 
 function toggleTheme() {
@@ -20,36 +32,50 @@ function isActive(match: (path: string) => boolean) {
 <template>
   <div class="min-h-dvh">
     <header
-      class="font-sans-ui border-b border-[var(--line)] px-5 py-4 sm:px-8"
+      class="sticky top-0 z-10 border-b border-[var(--line)] bg-[var(--paper)]"
     >
-      <div class="mx-auto flex max-w-5xl items-center justify-between gap-4">
-        <div class="flex min-w-0 items-center gap-6">
-          <NuxtLink to="/" class="group flex items-baseline gap-3">
-            <span class="text-lg font-semibold tracking-tight">Skills</span>
-            <span class="hidden text-sm text-[var(--muted)] sm:inline">
-              erbilnas.com
-            </span>
+      <div
+        class="mx-auto grid max-w-5xl grid-cols-[minmax(0,1fr)_auto] items-end gap-x-6 gap-y-3 px-5 py-4 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:px-8 sm:py-5"
+      >
+        <NuxtLink
+          to="/"
+          class="min-w-0 justify-self-start leading-tight"
+          aria-label="Skills home"
+        >
+          <span class="block text-2xl font-semibold tracking-tight">
+            Skills
+          </span>
+          <span class="font-sans-ui mt-0.5 block text-xs text-[var(--muted)]">
+            erbilnas.com
+          </span>
+        </NuxtLink>
+
+        <nav
+          class="font-sans-ui col-span-2 flex flex-wrap items-center gap-x-5 gap-y-1 sm:col-span-1 sm:justify-center"
+          aria-label="Catalog"
+        >
+          <NuxtLink
+            v-for="link in links"
+            :key="link.to"
+            :to="link.to"
+            class="py-1 text-sm transition-colors"
+            :class="
+              isActive(link.match)
+                ? 'font-semibold text-[var(--ink)]'
+                : 'font-normal text-[var(--muted)] hover:text-[var(--ink)]'
+            "
+            :aria-current="isActive(link.match) ? 'page' : undefined"
+          >
+            {{ link.label }}
           </NuxtLink>
-          <nav class="flex items-center gap-4 text-sm">
-            <NuxtLink
-              v-for="link in links"
-              :key="link.to"
-              :to="link.to"
-              class="hover:text-[var(--ink)]"
-              :class="
-                isActive(link.match)
-                  ? 'text-[var(--ink)]'
-                  : 'text-[var(--muted)]'
-              "
-            >
-              {{ link.label }}
-            </NuxtLink>
-          </nav>
-        </div>
-        <div class="flex items-center gap-3 text-sm">
+        </nav>
+
+        <div
+          class="font-sans-ui flex items-center justify-self-end gap-4 text-sm text-[var(--muted)]"
+        >
           <button
             type="button"
-            class="text-[var(--muted)] hover:text-[var(--ink)]"
+            class="py-1 hover:text-[var(--ink)]"
             :aria-label="
               colorMode.value === 'dark'
                 ? 'Switch to light theme'
@@ -59,10 +85,7 @@ function isActive(match: (path: string) => boolean) {
           >
             {{ colorMode.value === "dark" ? "Light" : "Dark" }}
           </button>
-          <NuxtLink
-            to="/admin"
-            class="text-[var(--muted)] hover:text-[var(--ink)]"
-          >
+          <NuxtLink to="/admin" class="py-1 hover:text-[var(--ink)]">
             Admin
           </NuxtLink>
         </div>

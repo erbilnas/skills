@@ -37,23 +37,13 @@ function isActive(match: (path: string) => boolean) {
       <div
         class="mx-auto grid max-w-5xl grid-cols-[minmax(0,1fr)_auto] items-center gap-x-6 gap-y-3 px-5 py-4 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:px-8 sm:py-5"
       >
-        <div class="flex min-w-0 items-center gap-3 justify-self-start">
-          <NuxtLink
-            to="/"
-            class="text-2xl font-semibold tracking-tight"
-            aria-label="Skills home"
-          >
-            Skills
-          </NuxtLink>
-          <a
-            href="https://erbilnas.com"
-            class="font-sans-ui inline-flex items-center rounded border border-[var(--line)] px-2 py-0.5 text-[11px] text-[var(--muted)] hover:border-[var(--ink)] hover:text-[var(--ink)]"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            sponsored by erbilnas.com
-          </a>
-        </div>
+        <NuxtLink
+          to="/"
+          class="justify-self-start text-2xl font-semibold tracking-tight"
+          aria-label="Skills home"
+        >
+          Skills
+        </NuxtLink>
 
         <nav
           class="font-sans-ui col-span-2 flex flex-wrap items-center gap-x-5 gap-y-1 sm:col-span-1 sm:justify-center"

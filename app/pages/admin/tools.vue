@@ -40,11 +40,21 @@ const uploadSlug = ref("");
 const uploadOverwrite = ref(false);
 const uploadInput = ref<HTMLInputElement | null>(null);
 
+const repoUrl = ref("");
+const repoKind = ref<CatalogKind | "">("");
+const repoOverwrite = ref(false);
+const repoImported = ref<Array<{ slug: string; kind: string; path: string }>>(
+  [],
+);
+const repoErrors = ref<Array<{ path: string; error: string }>>([]);
+
 function resetStatus() {
   message.value = "";
   errorMessage.value = "";
   previewPath.value = "";
   committed.value = [];
+  repoImported.value = [];
+  repoErrors.value = [];
 }
 
 function explainError(err: unknown) {
@@ -119,6 +129,35 @@ async function runPasteImport() {
     });
     message.value = `${result.note} → ${result.kind}/${result.slug}`;
     previewPath.value = result.previewPath || "";
+  } catch (err) {
+    errorMessage.value = explainError(err);
+  } finally {
+    busy.value = false;
+  }
+}
+
+async function runRepoImport() {
+  busy.value = true;
+  resetStatus();
+  try {
+    const result = await $fetch<{
+      note: string;
+      imported: number;
+      found: number;
+      committed: Array<{ slug: string; kind: string; path: string }>;
+      errors: Array<{ path: string; error: string }>;
+      source: string;
+    }>("/api/admin/import-repo", {
+      method: "POST",
+      body: {
+        url: repoUrl.value,
+        kind: repoKind.value || undefined,
+        overwrite: repoOverwrite.value,
+      },
+    });
+    message.value = `${result.note} (${result.imported}/${result.found} from ${result.source})`;
+    repoImported.value = result.committed || [];
+    repoErrors.value = result.errors || [];
   } catch (err) {
     errorMessage.value = explainError(err);
   } finally {
@@ -221,6 +260,56 @@ async function runUploadImport() {
             :disabled="busy"
           >
             {{ busy ? "Working…" : "Import from GitHub" }}
+          </button>
+        </form>
+      </section>
+
+      <section class="border border-[var(--line)] p-6">
+        <h2 class="text-lg font-semibold tracking-tight">
+          Import GitHub repo / folder
+        </h2>
+        <p class="mt-2 text-sm text-[var(--muted)]">
+          Import every
+          <span class="font-mono-ui">SKILL.md</span> /
+          <span class="font-mono-ui">MCP.md</span> /
+          <span class="font-mono-ui">RULE.md</span>
+          under a repo tree (max 50).
+        </p>
+        <form class="mt-5 space-y-4" @submit.prevent="runRepoImport">
+          <label class="flex flex-col gap-1.5">
+            <span class="text-xs text-[var(--muted)]">Repo or folder URL</span>
+            <input
+              v-model="repoUrl"
+              required
+              type="url"
+              placeholder="https://github.com/org/repo/tree/main/skills"
+              class="rounded-md border border-[var(--line)] bg-transparent px-3 py-2.5 outline-none focus:border-[var(--ink)]"
+            />
+          </label>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <label class="flex flex-col gap-1.5">
+              <span class="text-xs text-[var(--muted)]">Force kind (optional)</span>
+              <select
+                v-model="repoKind"
+                class="rounded-md border border-[var(--line)] bg-transparent px-3 py-2.5 outline-none focus:border-[var(--ink)]"
+              >
+                <option value="">Infer per file</option>
+                <option value="skills">skills</option>
+                <option value="mcps">mcps</option>
+                <option value="rules">rules</option>
+              </select>
+            </label>
+            <label class="flex items-end gap-2 pb-2 text-sm">
+              <input v-model="repoOverwrite" type="checkbox" class="size-4" />
+              Overwrite existing slugs
+            </label>
+          </div>
+          <button
+            type="submit"
+            class="rounded-md bg-[var(--ink)] px-4 py-2.5 text-sm font-medium text-[var(--paper)] disabled:opacity-50"
+            :disabled="busy"
+          >
+            {{ busy ? "Working…" : "Import folder" }}
           </button>
         </form>
       </section>
@@ -381,6 +470,26 @@ async function runUploadImport() {
           class="font-mono-ui mt-3 max-h-64 overflow-y-auto text-xs text-[var(--muted)]"
         >
           <li v-for="entry in committed" :key="entry">{{ entry }}</li>
+        </ul>
+        <ul
+          v-if="repoImported.length"
+          class="font-mono-ui mt-3 max-h-64 overflow-y-auto text-xs text-[var(--muted)]"
+        >
+          <li
+            v-for="entry in repoImported"
+            :key="`${entry.kind}:${entry.slug}`"
+          >
+            {{ entry.kind }}/{{ entry.slug }}
+          </li>
+        </ul>
+        <ul
+          v-if="repoErrors.length"
+          class="font-mono-ui mt-3 max-h-40 overflow-y-auto text-xs"
+          role="alert"
+        >
+          <li v-for="entry in repoErrors" :key="entry.path">
+            {{ entry.path }}: {{ entry.error }}
+          </li>
         </ul>
       </div>
     </div>

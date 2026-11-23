@@ -17,5 +17,6 @@ const { entries, tags, pending, error, refresh } = useAdminCatalogList("mcps");
     :pending="pending"
     :error="Boolean(error)"
     @deleted="refresh()"
+    @refreshed="refresh()"
   />
 </template>

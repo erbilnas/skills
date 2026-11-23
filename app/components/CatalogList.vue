@@ -332,12 +332,32 @@ onBeforeUnmount(() => {
     </p>
 
     <p v-if="pending" class="font-sans-ui text-sm text-[var(--muted)]">Loading…</p>
-    <p v-else-if="error" class="font-sans-ui text-sm text-[var(--muted)]" role="alert">
-      Could not load entries.
-    </p>
-    <p v-else-if="!filtered.length" class="font-sans-ui text-sm text-[var(--muted)]">
-      {{ emptyLabel || "No matches." }}
-    </p>
+    <div
+      v-else-if="error"
+      class="font-sans-ui border border-[var(--line)] px-4 py-5 text-sm text-[var(--muted)]"
+      role="alert"
+    >
+      <p>Could not load entries from this deploy.</p>
+      <p class="mt-2">
+        Coolify may still be catching up with GitHub. Retry in a minute, or open a
+        known item with
+        <span class="font-mono-ui">?source=github</span>
+        for a live preview.
+      </p>
+    </div>
+    <div
+      v-else-if="!filtered.length"
+      class="font-sans-ui border border-[var(--line)] px-4 py-5 text-sm text-[var(--muted)]"
+    >
+      <p>{{ emptyLabel || "No matches." }}</p>
+      <p v-if="!items.length" class="mt-2">
+        If you just published, wait for Coolify to redeploy, or preview a file with
+        <span class="font-mono-ui">?source=github</span>.
+      </p>
+      <p v-else-if="isFiltered" class="mt-2">
+        Clear search or filters to see the full catalog.
+      </p>
+    </div>
 
     <ul
       v-else-if="layout === 'list'"

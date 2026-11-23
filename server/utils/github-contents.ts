@@ -10,7 +10,7 @@ interface GithubContentResponse {
   html_url?: string;
 }
 
-function githubHeaders(token: string) {
+export function githubHeaders(token: string) {
   return {
     Accept: "application/vnd.github+json",
     Authorization: `Bearer ${token}`,
@@ -24,6 +24,129 @@ function contentUrl(repo: string, path: string) {
     .split("/")
     .map(encodeURIComponent)
     .join("/")}`;
+}
+
+export function tryGithubWriteRuntime(event?: H3Event) {
+  try {
+    return requireGithubWrite(event);
+  } catch {
+    return null;
+  }
+}
+
+export async function listFileCommits(
+  event: H3Event,
+  path: string,
+  limit = 12,
+): Promise<
+  Array<{
+    sha: string;
+    message: string;
+    date: string | null;
+    url: string | null;
+    author: string | null;
+  }>
+> {
+  const runtime = tryGithubWriteRuntime(event);
+  if (!runtime) return [];
+
+  const url = new URL(
+    `https://api.github.com/repos/${runtime.repo}/commits`,
+  );
+  url.searchParams.set("path", path);
+  url.searchParams.set("sha", runtime.branch);
+  url.searchParams.set("per_page", String(Math.min(limit, 30)));
+
+  const res = await fetch(url, { headers: githubHeaders(runtime.token) });
+  if (!res.ok) return [];
+
+  const json = (await res.json()) as Array<{
+    sha?: string;
+    html_url?: string;
+    commit?: {
+      message?: string;
+      author?: { name?: string; date?: string };
+    };
+    author?: { login?: string };
+  }>;
+
+  return (json || []).map((entry) => ({
+    sha: (entry.sha || "").slice(0, 7),
+    message: String(entry.commit?.message || "")
+      .split("\n")[0]
+      ?.trim() || "commit",
+    date: entry.commit?.author?.date || null,
+    url: entry.html_url || null,
+    author: entry.author?.login || entry.commit?.author?.name || null,
+  }));
+}
+
+export async function listRepoDocPaths(
+  event: H3Event,
+  input: { owner: string; repo: string; ref: string; prefix: string },
+): Promise<string[]> {
+  const runtime = requireGithubWrite(event);
+  const url = `https://api.github.com/repos/${input.owner}/${input.repo}/git/trees/${encodeURIComponent(input.ref)}?recursive=1`;
+  const res = await fetch(url, { headers: githubHeaders(runtime.token) });
+  if (!res.ok) {
+    const body = await res.text();
+    throw createError({
+      statusCode: 502,
+      statusMessage: "Failed to list GitHub tree",
+      data: { status: res.status, body },
+    });
+  }
+
+  const json = (await res.json()) as {
+    tree?: Array<{ path?: string; type?: string }>;
+    truncated?: boolean;
+  };
+
+  const prefix = input.prefix.replace(/^\/+|\/+$/g, "");
+  const docs = (json.tree || [])
+    .filter((node) => node.type === "blob" && node.path)
+    .map((node) => String(node.path))
+    .filter((path) => {
+      if (prefix && path !== prefix && !path.startsWith(`${prefix}/`)) {
+        return false;
+      }
+      const base = path.split("/").pop()?.toLowerCase() || "";
+      return (
+        base === "skill.md" ||
+        base === "mcp.md" ||
+        base === "rule.md" ||
+        base.endsWith(".mdc")
+      );
+    });
+
+  return docs;
+}
+
+export async function fetchRawGithubFile(
+  event: H3Event,
+  input: { owner: string; repo: string; ref: string; path: string },
+) {
+  const runtime = requireGithubWrite(event);
+  const url = `https://api.github.com/repos/${input.owner}/${input.repo}/contents/${input.path
+    .split("/")
+    .map(encodeURIComponent)
+    .join("/")}?ref=${encodeURIComponent(input.ref)}`;
+  const res = await fetch(url, { headers: githubHeaders(runtime.token) });
+  if (res.status === 404) return null;
+  if (!res.ok) {
+    throw createError({
+      statusCode: 502,
+      statusMessage: "Failed to read remote GitHub file",
+    });
+  }
+  const json = (await res.json()) as {
+    content?: string;
+    encoding?: string;
+  };
+  if (typeof json.content !== "string") return null;
+  return json.encoding === "base64"
+    ? Buffer.from(json.content.replace(/\n/g, ""), "base64").toString("utf8")
+    : json.content;
 }
 
 export async function getFileSha(

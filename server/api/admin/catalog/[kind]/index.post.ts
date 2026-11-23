@@ -77,6 +77,13 @@ export default defineEventHandler(async (event) => {
     message: `feat(${kind}): add ${name}`,
   });
 
+  await appendAudit(event, {
+    action: "create",
+    kind,
+    slug: name,
+    path: result.path,
+  });
+
   return {
     kind,
     slug: name,

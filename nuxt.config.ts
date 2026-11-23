@@ -42,6 +42,7 @@ export default defineNuxtConfig({
           title: "Skills catalog JSON",
           href: "/api/feed.json",
         },
+        { rel: "sitemap", type: "application/xml", href: "/api/sitemap.xml" },
       ],
     },
   },

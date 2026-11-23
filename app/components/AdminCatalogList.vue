@@ -12,13 +12,17 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   deleted: [];
+  refreshed: [];
 }>();
 
 const query = ref("");
 const visibility = ref<"all" | "public" | "draft" | "private">("all");
 const tag = ref("all");
 const deletingSlug = ref("");
+const togglingSlug = ref("");
 const deleteError = ref("");
+const undo = ref<{ slug: string; trashId: string; name: string } | null>(null);
+let undoTimer: ReturnType<typeof setTimeout> | null = null;
 
 const filtered = computed(() => {
   const q = query.value.trim().toLowerCase();
@@ -38,36 +42,87 @@ const filtered = computed(() => {
   });
 });
 
+function explainError(err: unknown) {
+  const fetchErr = err as {
+    data?: { statusMessage?: string };
+    statusMessage?: string;
+    message?: string;
+  };
+  return (
+    fetchErr?.data?.statusMessage ||
+    fetchErr?.statusMessage ||
+    fetchErr?.message ||
+    "Request failed"
+  );
+}
+
+async function togglePublish(item: AdminCatalogMeta) {
+  togglingSlug.value = item.slug;
+  deleteError.value = "";
+  try {
+    await $fetch(`/api/admin/catalog/${props.kind}/${item.slug}/visibility`, {
+      method: "PUT",
+      body: { draft: !item.draft },
+    });
+    emit("refreshed");
+  } catch (err) {
+    deleteError.value = explainError(err);
+  } finally {
+    togglingSlug.value = "";
+  }
+}
+
 async function removeItem(item: AdminCatalogMeta) {
   const ok = window.confirm(
-    `Delete “${item.name}” from GitHub? This cannot be undone from the admin UI.`,
+    `Move “${item.name}” to trash on GitHub? You can restore it from Trash.`,
   );
   if (!ok) return;
   deletingSlug.value = item.slug;
   deleteError.value = "";
   try {
-    await $fetch(`/api/admin/catalog/${props.kind}/${item.slug}`, {
-      method: "DELETE",
-    });
+    const result = await $fetch<{ trashId?: string }>(
+      `/api/admin/catalog/${props.kind}/${item.slug}`,
+      { method: "DELETE" },
+    );
     emit("deleted");
-  } catch (err: unknown) {
-    const fetchErr = err as {
-      data?: { statusMessage?: string };
-      statusMessage?: string;
-      message?: string;
-    };
-    deleteError.value =
-      fetchErr?.data?.statusMessage ||
-      fetchErr?.statusMessage ||
-      fetchErr?.message ||
-      "Delete failed";
+    if (result.trashId) {
+      undo.value = {
+        slug: item.slug,
+        trashId: result.trashId,
+        name: item.name,
+      };
+      if (undoTimer) clearTimeout(undoTimer);
+      undoTimer = setTimeout(() => {
+        undo.value = null;
+      }, 30000);
+    }
+  } catch (err) {
+    deleteError.value = explainError(err);
   } finally {
     deletingSlug.value = "";
   }
 }
 
+async function undoDelete() {
+  if (!undo.value) return;
+  try {
+    await $fetch("/api/admin/trash/restore", {
+      method: "POST",
+      body: {
+        kind: props.kind,
+        slug: undo.value.slug,
+        id: undo.value.trashId,
+      },
+    });
+    undo.value = null;
+    emit("refreshed");
+  } catch (err) {
+    deleteError.value = explainError(err);
+  }
+}
+
 function statusLine(item: AdminCatalogMeta) {
-  return [item.draft ? "draft" : null, item.private ? "private" : null]
+  return [item.draft ? "draft" : "live", item.private ? "private" : null]
     .filter(Boolean)
     .join(" · ");
 }
@@ -128,6 +183,20 @@ function statusLine(item: AdminCatalogMeta) {
       </div>
     </div>
 
+    <p
+      v-if="undo"
+      class="font-sans-ui mb-4 border border-[var(--line)] px-3 py-2 text-sm"
+      role="status"
+    >
+      “{{ undo.name }}” moved to trash.
+      <button
+        type="button"
+        class="ml-2 underline hover:text-[var(--ink)]"
+        @click="undoDelete"
+      >
+        Undo
+      </button>
+    </p>
     <p v-if="deleteError" class="font-sans-ui mb-4 text-sm" role="alert">
       {{ deleteError }}
     </p>
@@ -167,10 +236,7 @@ function statusLine(item: AdminCatalogMeta) {
         <div class="min-w-0">
           <p class="truncate font-medium">
             {{ item.name }}
-            <span
-              v-if="statusLine(item)"
-              class="font-sans-ui ml-2 text-xs font-normal text-[var(--muted)]"
-            >
+            <span class="font-sans-ui ml-2 text-xs font-normal text-[var(--muted)]">
               {{ statusLine(item) }}
             </span>
           </p>
@@ -182,6 +248,20 @@ function statusLine(item: AdminCatalogMeta) {
           </p>
         </div>
         <div class="font-sans-ui flex shrink-0 flex-wrap items-center gap-3 text-sm">
+          <button
+            type="button"
+            class="text-[var(--muted)] hover:text-[var(--ink)] disabled:opacity-50"
+            :disabled="togglingSlug === item.slug"
+            @click="togglePublish(item)"
+          >
+            {{
+              togglingSlug === item.slug
+                ? "…"
+                : item.draft
+                  ? "Publish"
+                  : "Unpublish"
+            }}
+          </button>
           <NuxtLink
             :to="`/${kind}/${item.slug}?source=github`"
             class="text-[var(--muted)] hover:text-[var(--ink)]"
@@ -201,7 +281,7 @@ function statusLine(item: AdminCatalogMeta) {
             :disabled="deletingSlug === item.slug"
             @click="removeItem(item)"
           >
-            {{ deletingSlug === item.slug ? "Deleting…" : "Delete" }}
+            {{ deletingSlug === item.slug ? "…" : "Trash" }}
           </button>
         </div>
       </li>

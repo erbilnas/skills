@@ -8,6 +8,8 @@ const links = [
   { to: "/admin/rules", label: "Rules" },
   { to: "/admin/sets", label: "Sets" },
   { to: "/admin/tools", label: "Tools" },
+  { to: "/admin/trash", label: "Trash" },
+  { to: "/admin/audit", label: "Audit" },
 ];
 
 function isActive(to: string, exact?: boolean) {

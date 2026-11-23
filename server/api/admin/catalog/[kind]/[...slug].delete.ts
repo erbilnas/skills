@@ -23,23 +23,27 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: "Invalid slug" });
   }
 
-  const path = `${kind}/${normalized}/${DOC_FILE[kind]}`;
-  const sha = await getFileSha(event, path);
-  if (!sha) {
-    throw createError({ statusCode: 404, statusMessage: "Not found on GitHub" });
-  }
+  const session = requireAdmin(event);
+  const meta = await softDeleteCatalogItem(event, {
+    kind,
+    slug: normalized,
+    actor: session.login,
+  });
 
-  await deleteCatalogFile(event, {
-    path,
-    message: `chore(${kind}): delete ${normalized}`,
-    sha,
+  await appendAudit(event, {
+    action: "trash",
+    kind,
+    slug: normalized,
+    path: meta.path,
+    detail: meta.id,
   });
 
   return {
     kind,
     slug: normalized,
-    path,
+    trashId: meta.id,
     deleted: true,
-    note: "Deleted on GitHub. Empty folders may remain until cleaned up. Coolify redeploy refreshes the catalog.",
+    soft: true,
+    note: "Moved to trash on GitHub. Restore from Admin → Trash.",
   };
 });

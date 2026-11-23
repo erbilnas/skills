@@ -23,6 +23,11 @@ const links = [
     label: "Rules",
     match: (path: string) => path.startsWith("/rules"),
   },
+  {
+    to: "/starred",
+    label: "Starred",
+    match: (path: string) => path.startsWith("/starred"),
+  },
 ];
 
 function toggleTheme() {
@@ -133,6 +138,7 @@ function isActive(match: (path: string) => boolean) {
         <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
           <a href="/api/feed.xml" class="hover:text-[var(--ink)]">RSS</a>
           <a href="/api/feed.json" class="hover:text-[var(--ink)]">JSON</a>
+          <a href="/api/sitemap.xml" class="hover:text-[var(--ink)]">Sitemap</a>
           <a
             href="https://erbilnas.com"
             class="hover:text-[var(--ink)]"

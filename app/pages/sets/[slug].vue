@@ -35,6 +35,8 @@ if (error.value || !data.value) {
 useCatalogSeo({
   title: data.value.name,
   description: data.value.description,
+  path: `/sets/${data.value.slug}`,
+  type: "article",
 });
 
 const config = useRuntimeConfig();
@@ -46,7 +48,13 @@ function installFor(skillSlug: string) {
   return `npx skills add ${repo.value}/${skillSlug}`;
 }
 
+const installAll = computed(() =>
+  (data.value?.skills || []).map((item) => installFor(item.slug)).join("\n"),
+);
+
 const copiedSlug = ref("");
+const copiedAll = ref(false);
+
 async function copyInstall(skillSlug: string) {
   try {
     await navigator.clipboard.writeText(installFor(skillSlug));
@@ -58,6 +66,20 @@ async function copyInstall(skillSlug: string) {
     copiedSlug.value = "";
   }
 }
+
+async function copyAll() {
+  try {
+    await navigator.clipboard.writeText(installAll.value);
+    copiedAll.value = true;
+    setTimeout(() => {
+      copiedAll.value = false;
+    }, 1400);
+  } catch {
+    copiedAll.value = false;
+  }
+}
+
+const { isStarred, toggleStar } = useStars();
 </script>
 
 <template>
@@ -69,15 +91,42 @@ async function copyInstall(skillSlug: string) {
     </nav>
 
     <header class="mb-10 max-w-3xl border-b border-[var(--line)] pb-8">
-      <p class="font-sans-ui mb-3 text-sm text-[var(--muted)]">
-        {{ data.count }} skills
-      </p>
-      <h1 class="text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
-        {{ data.name }}
-      </h1>
+      <div class="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p class="font-sans-ui mb-3 text-sm text-[var(--muted)]">
+            {{ data.count }} skills
+          </p>
+          <h1 class="text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
+            {{ data.name }}
+          </h1>
+        </div>
+        <button
+          type="button"
+          class="font-sans-ui text-sm text-[var(--muted)] hover:text-[var(--ink)]"
+          @click="toggleStar({ kind: 'sets', slug: data.slug })"
+        >
+          {{ isStarred({ kind: "sets", slug: data.slug }) ? "Starred" : "Star" }}
+        </button>
+      </div>
       <p class="mt-4 text-lg text-pretty text-[var(--muted)]">
         {{ data.description }}
       </p>
+
+      <div class="font-sans-ui mt-8">
+        <p class="mb-2 text-xs text-[var(--muted)]">Install whole set</p>
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-start">
+          <pre
+            class="font-mono-ui max-h-48 flex-1 overflow-auto rounded-md border border-[var(--line)] px-3 py-2.5 text-xs"
+          >{{ installAll }}</pre>
+          <button
+            type="button"
+            class="rounded-md bg-[var(--ink)] px-4 py-2.5 text-sm font-medium text-[var(--paper)]"
+            @click="copyAll"
+          >
+            {{ copiedAll ? "Copied" : "Copy all" }}
+          </button>
+        </div>
+      </div>
     </header>
 
     <ul class="divide-y divide-[var(--line)] border-y border-[var(--line)]">

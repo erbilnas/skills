@@ -79,6 +79,13 @@ export default defineEventHandler(async (event) => {
     sha,
   });
 
+  await appendAudit(event, {
+    action: "update",
+    kind,
+    slug: normalized,
+    path: result.path,
+  });
+
   return {
     kind,
     slug: normalized,

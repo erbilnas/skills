@@ -13,7 +13,7 @@ interface CatalogResponse {
   items: CatalogMeta[];
 }
 
-useSeoMeta({
+useCatalogSeo({
   title: "Rules",
   description: "Cursor user rules and plugin rules from my setup.",
 });

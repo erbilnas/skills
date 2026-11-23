@@ -13,7 +13,7 @@ interface CatalogResponse {
   items: CatalogMeta[];
 }
 
-useSeoMeta({
+useCatalogSeo({
   title: "MCPs",
   description: "Cursor MCP servers from my machine and plugins.",
 });

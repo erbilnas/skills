@@ -22,7 +22,7 @@ if (error.value || !data.value) {
   throw createError({ statusCode: 404, statusMessage: "MCP not found" });
 }
 
-useSeoMeta({
+useCatalogSeo({
   title: data.value.name,
   description: data.value.description,
 });

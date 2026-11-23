@@ -4,9 +4,10 @@ definePageMeta({
   middleware: "admin",
 });
 
-useSeoMeta({
-  robots: "noindex, nofollow",
+useCatalogSeo({
   title: "Admin",
+  description: "Add or update skills in the catalog.",
+  robots: "noindex, nofollow",
 });
 
 interface SkillMeta {

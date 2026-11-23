@@ -11,8 +11,7 @@ interface SkillsResponse {
   skills: SkillMeta[];
 }
 
-useSeoMeta({
-  title: "Skills",
+useCatalogSeo({
   description:
     "Browse agent skills by Erbil Nas. Search by name, description, or category.",
 });

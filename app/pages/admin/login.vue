@@ -3,9 +3,10 @@ definePageMeta({
   layout: false,
 });
 
-useSeoMeta({
-  robots: "noindex, nofollow",
+useCatalogSeo({
   title: "Admin login",
+  description: "Sign in with GitHub to manage the skills catalog.",
+  robots: "noindex, nofollow",
 });
 
 const route = useRoute();

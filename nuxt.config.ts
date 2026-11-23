@@ -14,18 +14,23 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      title: "Skills",
-      titleTemplate: "%s · skills.erbilnas.com",
+      title: "Skills by Erbil Nas",
+      titleTemplate: "%s",
       htmlAttrs: { lang: "en" },
       meta: [
         {
           name: "description",
           content:
-            "Agent skills catalog by Erbil Nas. Browse, search, and install reusable agent workflows.",
+            "Agent skills, MCPs, and Cursor rules by Erbil Nas. Browse the catalog and install what you need.",
         },
-        { name: "theme-color", content: "#fafaf9" },
+        { name: "theme-color", content: "#f7f5f2" },
+        { name: "color-scheme", content: "light dark" },
       ],
-      link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
+      link: [
+        { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+        { rel: "icon", href: "/favicon.ico", sizes: "any" },
+        { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+      ],
     },
   },
 
@@ -47,5 +52,4 @@ export default defineNuxtConfig({
       githubRepo: process.env.GITHUB_REPO || "",
     },
   },
-
 });

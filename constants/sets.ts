@@ -1,3 +1,7 @@
+/**
+ * Seed data only. Runtime catalog reads `sets/*/SET.md` via server/utils/sets.ts.
+ * Kept so local scripts can re-seed if needed.
+ */
 export interface SkillSetDef {
   slug: string;
   name: string;
@@ -5,7 +9,6 @@ export interface SkillSetDef {
   skills: readonly string[];
 }
 
-/** Curated skill packs. Order is intentional. */
 export const SKILL_SETS: readonly SkillSetDef[] = [
   {
     slug: "starter",
@@ -120,7 +123,3 @@ export const SKILL_SETS: readonly SkillSetDef[] = [
     ],
   },
 ] as const;
-
-export function getSkillSet(slug: string): SkillSetDef | undefined {
-  return SKILL_SETS.find((set) => set.slug === slug);
-}

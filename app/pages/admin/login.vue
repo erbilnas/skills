@@ -51,7 +51,7 @@ const errorCopy: Record<string, string> = {
     <div class="flex max-w-sm flex-col items-center gap-6 text-center">
       <h1 class="text-2xl font-semibold tracking-tight">Admin</h1>
       <p class="font-sans-ui text-sm text-[var(--muted)]">
-        Sign in with the allowlisted GitHub account to add skills.
+        Sign in with the allowlisted GitHub account to manage the catalog.
       </p>
       <p
         v-if="errorKey"

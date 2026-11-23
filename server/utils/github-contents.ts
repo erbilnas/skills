@@ -123,6 +123,42 @@ export async function putCatalogFile(
   };
 }
 
+export async function deleteCatalogFile(
+  event: H3Event,
+  input: {
+    path: string;
+    message: string;
+    sha: string;
+  },
+) {
+  const { token, repo, branch } = requireGithubWrite(event);
+  const url = contentUrl(repo, input.path);
+
+  const res = await fetch(url, {
+    method: "DELETE",
+    headers: {
+      ...githubHeaders(token),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      message: input.message,
+      sha: input.sha,
+      branch,
+    }),
+  });
+
+  if (!res.ok) {
+    const json = (await res.json().catch(() => ({}))) as { message?: string };
+    throw createError({
+      statusCode: 502,
+      statusMessage: json.message || "Failed to delete GitHub content",
+      data: { status: res.status, body: json },
+    });
+  }
+
+  return { path: input.path, deleted: true };
+}
+
 /** @deprecated use putCatalogFile */
 export async function putSkillFile(
   event: H3Event,

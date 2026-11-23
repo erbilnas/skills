@@ -42,13 +42,18 @@ function isActive(match: (path: string) => boolean) {
       <div
         class="mx-auto grid max-w-5xl grid-cols-[minmax(0,1fr)_auto] items-center gap-x-6 gap-y-3 px-5 py-4 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:px-8 sm:py-5"
       >
-        <NuxtLink
-          to="/"
-          class="justify-self-start text-2xl font-semibold tracking-tight"
-          aria-label="Skills home"
-        >
-          Skills
-        </NuxtLink>
+        <div class="justify-self-start flex items-baseline gap-2">
+          <NuxtLink
+            to="/"
+            class="text-2xl font-semibold tracking-tight"
+            aria-label="Skills home"
+          >
+            Skills
+          </NuxtLink>
+          <span class="font-sans-ui text-xs text-[var(--muted)]">
+            by Erbil Nas
+          </span>
+        </div>
 
         <nav
           class="font-sans-ui col-span-2 flex flex-wrap items-center gap-x-5 gap-y-1 sm:col-span-1 sm:justify-center"
@@ -128,9 +133,6 @@ function isActive(match: (path: string) => boolean) {
         <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
           <a href="/api/feed.xml" class="hover:text-[var(--ink)]">RSS</a>
           <a href="/api/feed.json" class="hover:text-[var(--ink)]">JSON</a>
-          <NuxtLink to="/admin/login" class="hover:text-[var(--ink)]">
-            Login
-          </NuxtLink>
           <a
             href="https://erbilnas.com"
             class="hover:text-[var(--ink)]"

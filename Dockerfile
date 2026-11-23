@@ -15,6 +15,7 @@ COPY --from=build /app/.output/ ./
 COPY --from=build /app/skills ./skills
 COPY --from=build /app/mcps ./mcps
 COPY --from=build /app/rules ./rules
+COPY --from=build /app/sets ./sets
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOST=0.0.0.0

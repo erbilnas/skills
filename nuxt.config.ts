@@ -30,6 +30,18 @@ export default defineNuxtConfig({
         { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
         { rel: "icon", href: "/favicon.ico", sizes: "any" },
         { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+        {
+          rel: "alternate",
+          type: "application/rss+xml",
+          title: "Skills catalog RSS",
+          href: "/api/feed.xml",
+        },
+        {
+          rel: "alternate",
+          type: "application/json",
+          title: "Skills catalog JSON",
+          href: "/api/feed.json",
+        },
       ],
     },
   },

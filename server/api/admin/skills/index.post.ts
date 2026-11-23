@@ -6,6 +6,10 @@ export default defineEventHandler(async (event) => {
     name?: string;
     description?: string;
     body?: string;
+    whenToUse?: string;
+    tags?: string[] | string;
+    draft?: boolean;
+    private?: boolean;
   }>(event);
 
   const name = String(body?.name || "")
@@ -13,6 +17,13 @@ export default defineEventHandler(async (event) => {
     .toLowerCase();
   const description = String(body?.description || "").trim();
   const markdownBody = String(body?.body || "").trim();
+  const whenToUse = String(body?.whenToUse || "").trim();
+  const tags = Array.isArray(body?.tags)
+    ? body.tags.map((tag) => String(tag).trim().toLowerCase()).filter(Boolean)
+    : String(body?.tags || "")
+        .split(/[,|]/)
+        .map((tag) => tag.trim().toLowerCase())
+        .filter(Boolean);
 
   if (!isValidSkillName(name)) {
     throw createError({
@@ -47,9 +58,13 @@ export default defineEventHandler(async (event) => {
     name,
     description,
     body: markdownBody,
+    whenToUse,
+    tags,
+    draft: Boolean(body?.draft),
+    private: Boolean(body?.private),
   });
 
-  const result = await putSkillFile(event, {
+  const result = await putCatalogFile(event, {
     path,
     content,
     message: `feat(skills): add ${name}`,
@@ -59,6 +74,7 @@ export default defineEventHandler(async (event) => {
     slug: name,
     path: result.path,
     htmlUrl: result.htmlUrl,
-    note: "Committed to GitHub. Coolify redeploy will publish it to the catalog.",
+    previewPath: `/skills/${name}?source=github`,
+    note: "Committed to GitHub. Open live preview now, or wait for Coolify redeploy for filesystem catalog.",
   };
 });

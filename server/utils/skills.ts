@@ -1,4 +1,5 @@
 import {
+  buildCatalogMarkdown,
   getCatalogItem,
   listCatalog,
   type CatalogDetail,
@@ -10,12 +11,18 @@ export type SkillDetail = CatalogDetail;
 
 export { renderMarkdownHtml as renderSkillHtml } from "./catalog";
 
-export async function listSkills(): Promise<SkillMeta[]> {
-  return listCatalog("skills");
+export async function listSkills(options?: {
+  includeHidden?: boolean;
+  sort?: "name" | "updated";
+}): Promise<SkillMeta[]> {
+  return listCatalog("skills", options);
 }
 
-export async function getSkill(slug: string): Promise<SkillDetail | null> {
-  return getCatalogItem("skills", slug);
+export async function getSkill(
+  slug: string,
+  options?: { includeHidden?: boolean },
+): Promise<SkillDetail | null> {
+  return getCatalogItem("skills", slug, options);
 }
 
 export function isValidSkillName(name: string) {
@@ -26,8 +33,10 @@ export function buildSkillMarkdown(input: {
   name: string;
   description: string;
   body: string;
+  whenToUse?: string;
+  tags?: string[];
+  draft?: boolean;
+  private?: boolean;
 }) {
-  const description = input.description.trim();
-  const body = input.body.trim();
-  return `---\nname: ${input.name}\ndescription: ${JSON.stringify(description)}\n---\n\n${body}\n`;
+  return buildCatalogMarkdown(input);
 }

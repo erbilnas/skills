@@ -9,6 +9,11 @@ const links = [
     match: (path: string) => path === "/" || path.startsWith("/skills"),
   },
   {
+    to: "/sets",
+    label: "Sets",
+    match: (path: string) => path.startsWith("/sets"),
+  },
+  {
     to: "/mcps",
     label: "MCPs",
     match: (path: string) => path.startsWith("/mcps"),
@@ -120,14 +125,21 @@ function isActive(match: (path: string) => boolean) {
         class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3"
       >
         <p>Skills, MCPs, and rules from my setup.</p>
-        <a
-          href="https://erbilnas.com"
-          class="hover:text-[var(--ink)]"
-          rel="noopener noreferrer"
-          target="_blank"
-        >
-          erbilnas.com
-        </a>
+        <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
+          <a href="/api/feed.xml" class="hover:text-[var(--ink)]">RSS</a>
+          <a href="/api/feed.json" class="hover:text-[var(--ink)]">JSON</a>
+          <NuxtLink to="/admin/login" class="hover:text-[var(--ink)]">
+            Login
+          </NuxtLink>
+          <a
+            href="https://erbilnas.com"
+            class="hover:text-[var(--ink)]"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            erbilnas.com
+          </a>
+        </div>
       </div>
     </footer>
   </div>

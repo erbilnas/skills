@@ -4,7 +4,10 @@ import { requireGithubWrite } from "./admin-session";
 interface GithubContentResponse {
   sha?: string;
   message?: string;
-  content?: { path?: string; sha?: string; html_url?: string };
+  encoding?: string;
+  content?: string | { path?: string; sha?: string; html_url?: string };
+  path?: string;
+  html_url?: string;
 }
 
 function githubHeaders(token: string) {
@@ -16,14 +19,27 @@ function githubHeaders(token: string) {
   };
 }
 
+function contentUrl(repo: string, path: string) {
+  return `https://api.github.com/repos/${repo}/contents/${path
+    .split("/")
+    .map(encodeURIComponent)
+    .join("/")}`;
+}
+
 export async function getFileSha(
   event: H3Event,
   path: string,
 ): Promise<string | null> {
+  const file = await getGithubFile(event, path);
+  return file?.sha || null;
+}
+
+export async function getGithubFile(
+  event: H3Event,
+  path: string,
+): Promise<{ sha: string; content: string; htmlUrl: string | null } | null> {
   const { token, repo, branch } = requireGithubWrite(event);
-  const url = new URL(
-    `https://api.github.com/repos/${repo}/contents/${path.split("/").map(encodeURIComponent).join("/")}`,
-  );
+  const url = new URL(contentUrl(repo, path));
   url.searchParams.set("ref", branch);
 
   const res = await fetch(url, { headers: githubHeaders(token) });
@@ -38,11 +54,30 @@ export async function getFileSha(
       data: { status: res.status, body },
     });
   }
-  const json = (await res.json()) as GithubContentResponse;
-  return json.sha || null;
+
+  const json = (await res.json()) as GithubContentResponse & {
+    content?: string;
+    encoding?: string;
+    html_url?: string;
+  };
+
+  if (typeof json.content !== "string") {
+    return null;
+  }
+
+  const decoded =
+    json.encoding === "base64"
+      ? Buffer.from(json.content.replace(/\n/g, ""), "base64").toString("utf8")
+      : json.content;
+
+  return {
+    sha: json.sha || "",
+    content: decoded,
+    htmlUrl: json.html_url || null,
+  };
 }
 
-export async function putSkillFile(
+export async function putCatalogFile(
   event: H3Event,
   input: {
     path: string;
@@ -52,10 +87,7 @@ export async function putSkillFile(
   },
 ) {
   const { token, repo, branch } = requireGithubWrite(event);
-  const url = `https://api.github.com/repos/${repo}/contents/${input.path
-    .split("/")
-    .map(encodeURIComponent)
-    .join("/")}`;
+  const url = contentUrl(repo, input.path);
 
   const res = await fetch(url, {
     method: "PUT",
@@ -71,7 +103,10 @@ export async function putSkillFile(
     }),
   });
 
-  const json = (await res.json()) as GithubContentResponse;
+  const json = (await res.json()) as {
+    message?: string;
+    content?: { path?: string; sha?: string; html_url?: string };
+  };
   if (!res.ok) {
     throw createError({
       statusCode: 502,
@@ -84,5 +119,19 @@ export async function putSkillFile(
     path: json.content?.path || input.path,
     sha: json.content?.sha || null,
     htmlUrl: json.content?.html_url || null,
+    content: input.content,
   };
+}
+
+/** @deprecated use putCatalogFile */
+export async function putSkillFile(
+  event: H3Event,
+  input: {
+    path: string;
+    content: string;
+    message: string;
+    sha?: string | null;
+  },
+) {
+  return putCatalogFile(event, input);
 }

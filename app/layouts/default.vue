@@ -1,8 +1,19 @@
 <script setup lang="ts">
+const route = useRoute();
 const colorMode = useColorMode();
+
+const links = [
+  { to: "/", label: "Skills", match: (path: string) => path === "/" || path.startsWith("/skills") },
+  { to: "/mcps", label: "MCPs", match: (path: string) => path.startsWith("/mcps") },
+  { to: "/rules", label: "Rules", match: (path: string) => path.startsWith("/rules") },
+];
 
 function toggleTheme() {
   colorMode.preference = colorMode.value === "dark" ? "light" : "dark";
+}
+
+function isActive(match: (path: string) => boolean) {
+  return match(route.path);
 }
 </script>
 
@@ -12,10 +23,29 @@ function toggleTheme() {
       class="font-sans-ui border-b border-[var(--line)] px-5 py-4 sm:px-8"
     >
       <div class="mx-auto flex max-w-5xl items-center justify-between gap-4">
-        <NuxtLink to="/" class="group flex items-baseline gap-3">
-          <span class="text-lg font-semibold tracking-tight">Skills</span>
-          <span class="text-sm text-[var(--muted)]">erbilnas.com</span>
-        </NuxtLink>
+        <div class="flex min-w-0 items-center gap-6">
+          <NuxtLink to="/" class="group flex items-baseline gap-3">
+            <span class="text-lg font-semibold tracking-tight">Skills</span>
+            <span class="hidden text-sm text-[var(--muted)] sm:inline">
+              erbilnas.com
+            </span>
+          </NuxtLink>
+          <nav class="flex items-center gap-4 text-sm">
+            <NuxtLink
+              v-for="link in links"
+              :key="link.to"
+              :to="link.to"
+              class="hover:text-[var(--ink)]"
+              :class="
+                isActive(link.match)
+                  ? 'text-[var(--ink)]'
+                  : 'text-[var(--muted)]'
+              "
+            >
+              {{ link.label }}
+            </NuxtLink>
+          </nav>
+        </div>
         <div class="flex items-center gap-3 text-sm">
           <button
             type="button"
@@ -46,8 +76,10 @@ function toggleTheme() {
     <footer
       class="font-sans-ui border-t border-[var(--line)] px-5 py-8 text-sm text-[var(--muted)] sm:px-8"
     >
-      <div class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3">
-        <p>Agent skills for Cursor, Claude, and friends.</p>
+      <div
+        class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3"
+      >
+        <p>Skills, MCPs, and rules from my Cursor setup.</p>
         <a
           href="https://erbilnas.com"
           class="hover:text-[var(--ink)]"

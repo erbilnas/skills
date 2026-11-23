@@ -9,6 +9,9 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "import-skills": "node scripts/import-skills.mjs",
+    "import-mcps": "node scripts/import-mcps.mjs",
+    "import-rules": "node scripts/import-rules.mjs",
+    "import-all": "node scripts/import-skills.mjs && node scripts/import-mcps.mjs && node scripts/import-rules.mjs",
     "check": "node scripts/check-skills.mjs"
   },
   "dependencies": {

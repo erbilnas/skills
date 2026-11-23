@@ -1,0 +1,42 @@
+[
+  {
+    "id": "16841697",
+    "title": "Anti-slop design law",
+    "slug": "anti-slop-design-law",
+    "description": "Follow this design law every time you design or build an interface. Avoid AI-slop patterns; craft uniqueness instead.",
+    "contentPath": "anti-slop-design-law.md",
+    "alwaysApply": true
+  },
+  {
+    "id": "16839336",
+    "title": "Gherkin style testing",
+    "slug": "gherkin-style-testing",
+    "description": "Create structured test scenarios in Gherkin (Given-When-Then) for web and mobile apps.",
+    "contentPath": "gherkin-style-testing-development-with-integration.md",
+    "alwaysApply": false
+  },
+  {
+    "id": "16839323",
+    "title": "Secure coding and DevSecOps",
+    "slug": "secure-coding-devsecops",
+    "description": "Secure coding, secret handling, dependency hygiene, authz, security testing, and compliance documentation.",
+    "contentPath": "cursor-rules-for-secure-coding-secret-handling-dependency-hygien.md",
+    "alwaysApply": true
+  },
+  {
+    "id": "16813772",
+    "title": "Git commit message guidelines",
+    "slug": "git-commit-message-guidelines",
+    "description": "Format all git commit messages with Conventional Commits.",
+    "contentPath": "git-commit-message-guidelines.md",
+    "alwaysApply": true
+  },
+  {
+    "id": "16813771",
+    "title": "Ponytail, lazy senior dev mode",
+    "slug": "ponytail-lazy-senior-dev-mode",
+    "description": "Efficient senior defaults: YAGNI, reuse, stdlib first, shortest correct diff.",
+    "contentPath": "ponytail-lazy-senior-dev-mode.md",
+    "alwaysApply": true
+  }
+]

@@ -11,8 +11,10 @@ RUN bun run build
 FROM node:20-bookworm-slim
 WORKDIR /app
 COPY --from=build /app/.output/ ./
-# Skills are read from the filesystem at runtime (not only at build).
+# Catalog content is read from the filesystem at runtime.
 COPY --from=build /app/skills ./skills
+COPY --from=build /app/mcps ./mcps
+COPY --from=build /app/rules ./rules
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOST=0.0.0.0

@@ -12,11 +12,19 @@ Public catalog of agent skills (`SKILL.md`) with GitHub OAuth admin to commit ne
 
 ```bash
 bun install
-bun run import-skills   # copies ~/.agents/skills → ./skills
+bun run import-all      # skills + mcps + rules
 bun run dev
 ```
 
-Override import source:
+Individual imports:
+
+```bash
+bun run import-skills   # ~/.agents/skills → ./skills
+bun run import-mcps     # ~/.cursor/mcp.json + plugin mcps → ./mcps (secrets redacted)
+bun run import-rules    # Cursor user rules + plugin .mdc → ./rules
+```
+
+Override skill import source:
 
 ```bash
 SKILLS_SOURCE=/path/to/skills bun run import-skills

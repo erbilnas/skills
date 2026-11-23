@@ -18,7 +18,7 @@ Secrets redacted.
   "type": "http",
   "url": "https://api.x.com/mcp",
   "auth": {
-    "CLIENT_ID": "NGdZYmo4VVp2T1BnRG55NlExOGQ6MTpjaQ",
+    "CLIENT_ID": "***",
     "scopes": [
       "tweet.read",
       "tweet.write",

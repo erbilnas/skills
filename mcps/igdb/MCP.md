@@ -20,7 +20,7 @@ Secrets redacted.
     "igdb-mcp-client"
   ],
   "env": {
-    "CLIENT_ID": "s2dupit4qerdjskqe5bs3vefo",
+    "CLIENT_ID": "***",
     "CLIENT_SECRET": "***"
   }
 }

@@ -18,7 +18,7 @@ Secrets redacted.
   "url": "https://mcp.facebook.com/whatsapp_business_tools",
   "type": "http",
   "auth": {
-    "CLIENT_ID": "1567824414630718",
+    "CLIENT_ID": "***",
     "CLIENT_SECRET": "***"
   }
 }

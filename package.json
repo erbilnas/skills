@@ -12,7 +12,7 @@
     "import-mcps": "node scripts/import-mcps.mjs",
     "import-rules": "node scripts/import-rules.mjs",
     "import-all": "node scripts/import-skills.mjs && node scripts/import-mcps.mjs && node scripts/import-rules.mjs",
-    "check": "node scripts/check-skills.mjs"
+    "check": "node scripts/check-skills.mjs && node scripts/check-secrets.mjs"
   },
   "dependencies": {
     "@nuxtjs/color-mode": "^4.1.0",

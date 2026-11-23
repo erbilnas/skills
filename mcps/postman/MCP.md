@@ -20,7 +20,7 @@ Secrets redacted.
   "headers": {
     "X-Source": "postman-agent-plugin",
     "X-Plugin-Version": "0.3.0",
-    "User-Agent": "postman-agent-plugin/0.3.0"
+    "User-Agent": "***"
   }
 }
 ```

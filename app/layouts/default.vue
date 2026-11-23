@@ -70,25 +70,47 @@ function isActive(match: (path: string) => boolean) {
           </NuxtLink>
         </nav>
 
-        <div
-          class="font-sans-ui flex items-center justify-self-end gap-4 text-sm text-[var(--muted)]"
+        <button
+          type="button"
+          class="justify-self-end p-1 text-[var(--muted)] hover:text-[var(--ink)]"
+          :aria-label="
+            colorMode.value === 'dark'
+              ? 'Switch to light theme'
+              : 'Switch to dark theme'
+          "
+          @click="toggleTheme"
         >
-          <button
-            type="button"
-            class="py-1 hover:text-[var(--ink)]"
-            :aria-label="
-              colorMode.value === 'dark'
-                ? 'Switch to light theme'
-                : 'Switch to dark theme'
-            "
-            @click="toggleTheme"
+          <!-- Light mode: show moon (go dark). Dark mode: show sun (go light). -->
+          <svg
+            v-if="colorMode.value !== 'dark'"
+            class="size-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.75"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
           >
-            {{ colorMode.value === "dark" ? "Light" : "Dark" }}
-          </button>
-          <NuxtLink to="/admin" class="py-1 hover:text-[var(--ink)]">
-            Admin
-          </NuxtLink>
-        </div>
+            <path
+              d="M20.2 14.2A8.2 8.2 0 0 1 9.8 3.8 7 7 0 1 0 20.2 14.2Z"
+            />
+          </svg>
+          <svg
+            v-else
+            class="size-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.75"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2.2M12 19.8V22M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2 12h2.2M19.8 12H22M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6" />
+          </svg>
+        </button>
       </div>
     </header>
 
